@@ -1,0 +1,14 @@
+env: "local"
+storage_path: "./"
+http_server:
+  adress: "localhost:8082"
+  timeout: 4s
+  idle_timeout: 60s
+
+db:
+  host: "localhost"
+  port: "5432"
+  username: "postgres"
+  dbname: "Urls"  
+  sslmode: "false"
+
