@@ -32,7 +32,7 @@ type DataBase struct {
 	db *sql.DB
 }
 
-func New(cfg Config) (*DataBase, error){
+func New(cfg Config) (*sql.DB, error){
 
 	// Формирование строки подключения
 	connStr := fmt.Sprintf(
@@ -49,7 +49,7 @@ func New(cfg Config) (*DataBase, error){
 	// TODO: если проект расширять то можно добавить миграцию
 	migr, err := db.Prepare(`
 	CREATE TABLE IF NOT EXISTS url(
-		id INTEGER PRIMARY KEY,
+		id SERIAL PRIMARY KEY,
 		alias TEXT NOT NULL UNIQUE,
 		url TEXT NOT NULL);
 	`)
@@ -62,7 +62,12 @@ func New(cfg Config) (*DataBase, error){
 		return nil, err
 	}
 
-	return &DataBase{db: db}, nil
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
 
 func (d *DataBase) SaveURL(urlToSave urlshorter.ShortURL) (int, error){
@@ -89,11 +94,11 @@ func (d *DataBase) GetURLbyAlias(alias string) (string, error){
 }
 
 func (d *DataBase) DeleteURLbyAlias(alias string) error{
-	query := fmt.Sprintf("DELETE FROM %s
-	WHERE alias = $1;", urlTable)
+	query := fmt.Sprintf("DELETE FROM %s WHERE alias = $1;", urlTable)
 
-	_, err = db.Exec(sqlStatement, 1)
+	_, err := d.db.Exec(query, alias)
 	if err != nil {
-  		panic(err)
+  		return err
 	}
+	return nil
 }
