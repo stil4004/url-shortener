@@ -8,7 +8,6 @@ import (
 
 	urlshorter "github.com/stil4004/url-shorter"
 	"github.com/stil4004/url-shorter/internal/repository"
-	"github.com/stil4004/url-shorter/internal/repository/db"
 )
 
 type ShortService struct {
@@ -24,9 +23,9 @@ func NewShorterService(repo repository.ShorterURL) *ShortService{
 func (s *ShortService) CreateShortURL(urlToSave *urlshorter.ShortURL) (string, error){
 	// TODO: Create alias
 	new_alias := s.GenerateAlias()
-	for _, found := db.All_alias[new_alias]; found;{
-		new_alias = s.GenerateAlias()
-	}
+	// for _, found := db.All_alias[new_alias]; found;{
+	// 	new_alias = s.GenerateAlias()
+	// }
 	urlToSave.Short_url = new_alias
 	return s.repo.CreateShortURL(urlToSave)
 }

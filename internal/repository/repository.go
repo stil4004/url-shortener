@@ -16,8 +16,14 @@ type Repository struct {
 	ShorterURL
 }
 
-func NewRepository(db *sql.DB) *Repository {
+func NewRepository(db *sql.DB, storageType string) *Repository {
+
+	if storageType == "db"{
+		return &Repository{
+			ShorterURL: NewShorterPostgres(db),
+		}
+	}
 	return &Repository{
-		ShorterURL: NewShorterPostgres(db),
+		ShorterURL: NewShorterMemory(),
 	}
 }
