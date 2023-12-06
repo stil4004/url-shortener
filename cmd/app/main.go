@@ -30,11 +30,10 @@ func main() {
 	log.Info("starting app")
 	log.Debug("started debug messages")
 
-	var repos *repository.Repository
 	var data_base *sql.DB
-	
 	if memory_arg == "db" {
-		data_base, err := db.New(db.Config{
+		var err error
+		data_base, err = db.New(db.Config{
 			Host:     viper.GetString("db.host"),
 			Port:     viper.GetString("db.port"),
 			Username: viper.GetString("db.username"),
@@ -49,7 +48,8 @@ func main() {
 		}
 	} 
 
-	repos = repository.NewRepository(data_base, memory_arg)
+	// Change data-base to Abstract structure DB
+	repos := repository.NewRepository(data_base, memory_arg)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 
