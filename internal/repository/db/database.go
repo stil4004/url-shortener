@@ -51,7 +51,7 @@ func New(cfg Config) (*sql.DB, error){
 	CREATE TABLE IF NOT EXISTS url(
 		id SERIAL PRIMARY KEY,
 		alias TEXT NOT NULL UNIQUE,
-		url TEXT NOT NULL);
+		url TEXT NOT NULL UNIQUE);
 	`)
 	if err != nil{
 		return nil, err
@@ -65,6 +65,16 @@ func New(cfg Config) (*sql.DB, error){
 	err = db.Ping()
 	if err != nil {
 		return nil, err
+	}
+	dataB := &DataBase{db: db}
+	All_alias = make(map[string]bool)
+
+	temp_allias_arr, err := dataB.GetAllShortURLS()
+	if err != nil{
+		log.Println("couldn't reach alias")
+	}
+	for _, a := range temp_allias_arr{
+		All_alias[a] = true
 	}
 
 	return db, nil
@@ -101,4 +111,29 @@ func (d *DataBase) DeleteURLbyAlias(alias string) error{
   		return err
 	}
 	return nil
+}
+
+var All_alias map[string]bool
+
+func (d *DataBase) GetAllShortURLS() ([]string, error){
+	allias_arr := []string{}
+
+	query := fmt.Sprintf("SELECT alias FROM %s WHERE", "url")
+
+	rows, err := d.db.Query(query)
+	if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+	for rows.Next() {
+        var al string
+        if err := rows.Scan(&al); err != nil {
+            return allias_arr, err
+        }
+        allias_arr = append(allias_arr, al)
+    }
+    if err = rows.Err(); err != nil {
+        return allias_arr, err
+    }
+	return allias_arr, nil
 }

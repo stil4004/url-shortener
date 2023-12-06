@@ -8,7 +8,8 @@ import (
 )
 
 type ShorterURL interface {
-	CreateShortURL(url urlshorter.ShortURL) (string, error)
+	CreateShortURL(urlToSave *urlshorter.ShortURL) (string, error)
+	GetLongURL(urlToGet *urlshorter.ShortURL) (string, error)
 }
 
 type Repository struct {

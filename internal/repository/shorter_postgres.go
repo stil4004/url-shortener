@@ -16,16 +16,30 @@ func NewShorterPostgres(db *sql.DB) *ShorterPostgres{
 }
 
 
-func (s *ShorterPostgres) CreateShortURL(url urlshorter.ShortURL) (string, error){
+func (s *ShorterPostgres) CreateShortURL(urlToSave  *urlshorter.ShortURL) (string, error){
 
 	var short_temp string
 
 	query := fmt.Sprintf("INSERT INTO %s (alias, url) values ($1, $2) RETURNING id", "url")
-	row := s.db.QueryRow(query, url.Short_url, url.Long_url)
+	row := s.db.QueryRow(query, urlToSave.Short_url, urlToSave.Long_url)
 	if err := row.Scan(&short_temp); err != nil{
 		return "", err
 	}
-	
-	return url.Short_url, nil
+
+	return urlToSave.Short_url, nil
 }
+
+func (s *ShorterPostgres) GetLongURL(urlToGet *urlshorter.ShortURL) (string, error){
+	var url_temp string
+
+	query := fmt.Sprintf("SELECT url FROM %s WHERE alias = $1", "url")
+
+	row := s.db.QueryRow(query, urlToGet.Short_url)
+	
+	err := row.Scan(&url_temp)
+
+	return url_temp, err
+}
+
+
 

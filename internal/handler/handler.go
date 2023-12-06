@@ -19,6 +19,7 @@ func (h *Handler) InitRoutes() *gin.Engine{
 	api := router.Group("/api")
 	{
 		api.POST("/shorter", h.cutURL)
+		api.GET("/shorter", h.getURL)
 		api.GET("/shorter/:alias", h.getURL)
 	}
 	return router

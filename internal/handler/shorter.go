@@ -15,13 +15,11 @@ func (h *Handler) cutURL(c *gin.Context) {
 		return
 	}
 
-	alias_temp, err := h.services.ShorterURL.CreateShortURL(urlshorter.ShortURL{
-		Long_url: "abab",
-		Short_url: "ab",   
-	   })
+	alias_temp, err := h.services.ShorterURL.CreateShortURL(&input)
 	
 	if err != nil{
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
@@ -30,9 +28,38 @@ func (h *Handler) cutURL(c *gin.Context) {
 }
 
 func (h *Handler) getURL(c *gin.Context) {
-	//a := c.Query("url")
+	var input urlshorter.ShortURL
+	long_url := ""
+
 	a := c.Param("alias")
+	if a != ""{
+		input.Short_url = a
+		long_url, err := h.services.ShorterURL.GetLongURL(&input)
+		if err != nil || long_url == ""{
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		}
+		c.JSON(http.StatusOK, map[string]interface{}{
+			"long_url": long_url,
+		})
+		return
+	}
+
+	if err := c.BindJSON(&input); err != nil{
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	long_url, err := h.services.ShorterURL.GetLongURL(&input)
+
+	if err != nil{
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"allo": a,
+		"long_url": long_url,
 	})
-}
+
+	}
+
+	
