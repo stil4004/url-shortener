@@ -23,7 +23,7 @@ func (h *Handler) cutURL(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"alias": alias_temp,
+		"short_url": alias_temp,
 	})
 }
 

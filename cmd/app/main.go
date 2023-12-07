@@ -20,9 +20,10 @@ const(
 )
 
 func main() {
-
+	// Checking for command line arguments
 	memory_arg := checkMemoryArgs(os.Args[1:])
 	
+	// Loading config
 	cfg := config.MastLoad()
 	//fmt.Println(cfg)
 	log := setupLogger(cfg.Env)
@@ -30,6 +31,7 @@ func main() {
 	log.Info("starting app")
 	log.Debug("started debug messages")
 
+	// if data base type storage, connecting to Postgres
 	var data_base *sql.DB
 	if memory_arg == "db" {
 		var err error
@@ -48,13 +50,14 @@ func main() {
 		}
 	} 
 
-	// Change data-base to Abstract structure DB
+	// Creating services
 	repos := repository.NewRepository(data_base, memory_arg)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
-
+	
+	// Starting server
 	srv := new(urlshorter.Server)
-	err := srv.Run("8082", handlers.InitRoutes())
+	err := srv.Run(cfg.Port, handlers.InitRoutes())
 	if err != nil{
 		log.Error("couldn't run server: %v", err)
 		os.Exit(1)
