@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/spf13/viper"
 	urlshorter "github.com/stil4004/url-shorter"
+	"github.com/stil4004/url-shorter/cmd/test"
 	"github.com/stil4004/url-shorter/internal/config"
 	"github.com/stil4004/url-shorter/internal/handler"
 	"github.com/stil4004/url-shorter/internal/repository"
@@ -18,6 +20,8 @@ const(
 	envLocal = "local"
 	envDev = "dev"
 )
+
+var isTesting = false
 
 func main() {
 	// Checking for command line arguments
@@ -55,6 +59,14 @@ func main() {
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 	
+	// if has parametre -t starts Testing
+	if isTesting{
+		go func(){
+			time.Sleep(8 * time.Second)
+			test.RunTests()
+		}()
+	}
+	
 	// Starting server
 	srv := new(urlshorter.Server)
 	err := srv.Run(cfg.Port, handlers.InitRoutes())
@@ -85,6 +97,9 @@ func checkMemoryArgs(args []string) string{
 		}
 		if arr == "-db" || arr == "-data-base"{
 			return "db"
+		}
+		if arr == "-t"{
+			isTesting = true
 		}
 	}
 	return "db"

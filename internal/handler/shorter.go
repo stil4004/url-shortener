@@ -7,7 +7,10 @@ import (
 	urlshorter "github.com/stil4004/url-shorter"
 )
 
+// Function on hadler level, that giving services long url
 func (h *Handler) cutURL(c *gin.Context) {
+
+	// Creating var for inputing url
 	var input urlshorter.ShortURL
 
 	if err := c.BindJSON(&input); err != nil{
@@ -15,6 +18,7 @@ func (h *Handler) cutURL(c *gin.Context) {
 		return
 	}
 
+	// Sending to service our long url
 	alias_temp, err := h.services.ShorterURL.CreateShortURL(&input)
 	
 	if err != nil{
@@ -28,10 +32,16 @@ func (h *Handler) cutURL(c *gin.Context) {
 }
 
 func (h *Handler) getURL(c *gin.Context) {
+
+	// Creating var for inputing short url
 	var input urlshorter.ShortURL
+
+	// Initing temp var for using it in construction
 	long_url := ""
 
+	// Checking if get method was done by adding query params
 	a := c.Param("alias")
+
 	if a != ""{
 		input.Short_url = a
 		long_url, err := h.services.ShorterURL.GetLongURL(&input)
@@ -49,6 +59,7 @@ func (h *Handler) getURL(c *gin.Context) {
 		return
 	}
 
+	// Sending short url to services
 	long_url, err := h.services.ShorterURL.GetLongURL(&input)
 
 	if err != nil{
